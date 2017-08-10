@@ -29,6 +29,7 @@ module Hyrax
         end
 
         def update_management
+          # Forms::PermissionTemplateForm.new(@permission_template_access.permission_template).remove_manager!
           Forms::PermissionTemplateForm.new(@permission_template_access.permission_template).update_management
         end
     end

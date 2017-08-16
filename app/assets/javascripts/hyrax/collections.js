@@ -10,6 +10,12 @@ Blacklight.onLoad(function () {
       form.append('<input type="hidden" value="add" name="collection[members]"></input>');
   });
 
+  $(".banner[data-background]").each(function() {
+    var $banner = $(this);
+    var url = 'url(' + $banner.data('background') + ')';
+    $banner.css({ "backgroundImage": url });
+  })
+
   $('#add_collection_to_collection').on('click', function(e) {
       e.preventDefault();
       $('#add-collection-to-collection-modal').modal('show');

@@ -35,6 +35,14 @@ module Hyrax
       single_item_action_form_fields(form, document, 'remove')
     end
 
+    # @param value [String] The gid of the CollectionType to be looked up
+    # @return [String] The CollectionType's title if found, else the gid
+    def collection_type_label(value)
+      CollectionType.find_by_gid!(value).title
+    rescue ActiveRecord::RecordNotFound, URI::BadURIError
+      value
+    end
+
     private
 
       # add hidden fields to a form for performing an action on a single document on a collection

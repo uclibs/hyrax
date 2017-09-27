@@ -19,11 +19,14 @@ module Hyrax
       def self.find_preservation_parent_ids_for(id:)
         # Not everything is guaranteed to have library_collection_ids
         # If it doesn't have it, what do we do?
-        fedora_object = ActiveFedora::Base.find(id)
-        if fedora_object.respond_to?(:member_of_collection_ids)
-          fedora_object.member_of_collection_ids
-        else
-          []
+        ActiveFedora::Base.uncached do
+          fedora_object = ActiveFedora::Base.find(id)
+
+          if fedora_object.respond_to?(:member_of_collection_ids)
+            fedora_object.member_of_collection_ids
+          else
+            []
+          end
         end
       end
 

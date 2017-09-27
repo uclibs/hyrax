@@ -206,7 +206,7 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo do
     context "when update fails" do
       let(:collection) { create(:collection, id: '12345') }
       let(:repository) { instance_double(Blacklight::Solr::Repository, search: result) }
-      let(:result) { double(documents: []) }
+      let(:result) { double(documents: [], total: 0) }
 
       before do
         allow(controller).to receive(:authorize!)
@@ -256,74 +256,73 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo do
     end
   end
 
-  # TODO: Add back in when admin dashboard version of show page is created
-  # describe "#show" do
-  #   context "when signed in" do
-  #     before do
-  #       sign_in user
-  #       [asset1, asset2, asset3].each do |asset|
-  #         asset.member_of_collections = [collection]
-  #         asset.save
-  #       end
-  #     end
-  #
-  #     it "returns the collection and its members" do
-  #       expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
-  #       get :show, params: { id: collection }
-  #       expect(response).to be_successful
-  #       expect(assigns[:presenter]).to be_kind_of Hyrax::CollectionPresenter
-  #       expect(assigns[:presenter].title).to match_array collection.title
-  #       expect(assigns[:member_docs].map(&:id)).to match_array [asset1, asset2, asset3].map(&:id)
-  #     end
-  #
-  #     context "and searching" do
-  #       it "returns some works" do
-  #         # "/collections/4m90dv529?utf8=%E2%9C%93&cq=King+Louie&sort="
-  #         get :show, params: { id: collection, cq: "Third" }
-  #         expect(assigns[:presenter]).to be_kind_of Hyrax::CollectionPresenter
-  #         expect(assigns[:member_docs].map(&:id)).to match_array [asset3].map(&:id)
-  #       end
-  #     end
-  #
-  #     context 'when the page parameter is passed' do
-  #       it 'loads the collection (paying no attention to the page param)' do
-  #         get :show, params: { id: collection, page: '2' }
-  #         expect(response).to be_successful
-  #         expect(assigns[:presenter]).to be_kind_of Hyrax::CollectionPresenter
-  #         expect(assigns[:presenter].to_s).to eq 'My collection'
-  #       end
-  #     end
-  #
-  #     context "without a referer" do
-  #       it "sets breadcrumbs" do
-  #         expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
-  #         get :show, params: { id: collection }
-  #         expect(response).to be_successful
-  #       end
-  #     end
-  #
-  #     context "with a referer" do
-  #       before do
-  #         request.env['HTTP_REFERER'] = 'http://test.host/foo'
-  #       end
-  #
-  #       it "sets breadcrumbs" do
-  #         expect(controller).to receive(:add_breadcrumb).with('My Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
-  #         expect(controller).to receive(:add_breadcrumb).with('Your Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
-  #         expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'))
-  #         get :show, params: { id: collection }
-  #         expect(response).to be_successful
-  #       end
-  #     end
-  #   end
-  #
-  #   context "not signed in" do
-  #     it "does not show me files in the collection" do
-  #       get :show, params: { id: collection }
-  #       expect(assigns[:member_docs].count).to eq 0
-  #     end
-  #   end
-  # end
+  describe "#show" do
+    context "when signed in" do
+      before do
+        sign_in user
+        [asset1, asset2, asset3].each do |asset|
+          asset.member_of_collections = [collection]
+          asset.save
+        end
+      end
+
+      it "returns the collection and its members", :with_nested_reindexing do
+        expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
+        get :show, params: { id: collection }
+        expect(response).to be_successful
+        expect(assigns[:presenter]).to be_kind_of Hyrax::CollectionPresenter
+        expect(assigns[:presenter].title).to match_array collection.title
+        expect(assigns[:member_docs].map(&:id)).to match_array [asset1, asset2, asset3].map(&:id)
+      end
+
+      context "and searching", :with_nested_reindexing do
+        it "returns some works" do
+          # "/collections/4m90dv529?utf8=%E2%9C%93&cq=King+Louie&sort="
+          get :show, params: { id: collection, cq: "Third" }
+          expect(assigns[:presenter]).to be_kind_of Hyrax::CollectionPresenter
+          expect(assigns[:member_docs].map(&:id)).to match_array [asset3].map(&:id)
+        end
+      end
+
+      context 'when the page parameter is passed' do
+        it 'loads the collection (paying no attention to the page param)' do
+          get :show, params: { id: collection, page: '2' }
+          expect(response).to be_successful
+          expect(assigns[:presenter]).to be_kind_of Hyrax::CollectionPresenter
+          expect(assigns[:presenter].to_s).to eq 'My collection'
+        end
+      end
+
+      context "without a referer" do
+        it "sets breadcrumbs" do
+          expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
+          get :show, params: { id: collection }
+          expect(response).to be_successful
+        end
+      end
+
+      context "with a referer" do
+        before do
+          request.env['HTTP_REFERER'] = 'http://test.host/foo'
+        end
+
+        it "sets breadcrumbs" do
+          expect(controller).to receive(:add_breadcrumb).with('My Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
+          expect(controller).to receive(:add_breadcrumb).with('Your Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
+          expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'))
+          get :show, params: { id: collection }
+          expect(response).to be_successful
+        end
+      end
+    end
+
+    context "not signed in" do
+      it "will redirect the user to sign in" do
+        get :show, params: { id: collection }
+        expect(response).to redirect_to('/users/sign_in')
+      end
+    end
+  end
 
   describe "#delete" do
     before { sign_in user }

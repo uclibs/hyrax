@@ -86,7 +86,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
       visit '/dashboard/my/collections'
     end
 
-    it 'lists all collections for all users' do
+    it 'lists all collections for all users', with_nested_reindexing: true do
       expect(page).to have_link 'All Collection'
       click_link 'All Collections'
       expect(page).to have_link(collection1.title.first)
@@ -214,7 +214,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
     end
   end
 
-  describe 'collection show page' do
+  describe 'collection show page', with_nested_reindexing: true do
     let(:collection) do
       create(:public_collection, user: user, description: ['collection description'])
     end
@@ -227,7 +227,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
     end
 
     it "has creation date for collections and shows a collection with a listing of Descriptive Metadata and catalog-style search results" do
-      expect(page).to have_content(collection1.create_date.to_date.to_formatted_s(:standard))
+      expect(page).to have_content(collection.create_date.to_date.to_formatted_s(:standard))
 
       expect(page).to have_content(collection.title.first)
       within('#document_' + collection.id) do
@@ -275,7 +275,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
   end
 
   # TODO: this is just like the block above. Merge them.
-  describe 'show pages of a collection' do
+  describe 'show pages of a collection', with_nested_reindexing: true do
     before do
       docs = (0..12).map do |n|
         { "has_model_ssim" => ["GenericWork"], :id => "zs25x871q#{n}",
@@ -326,7 +326,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
   end
 
   describe 'remove works from collection' do
-    context 'user that can edit' do
+    context 'user that can edit', :with_nested_reindexing do
       let!(:work2) { create(:work, title: ["King Louie"], member_of_collections: [collection1], user: user) }
       let!(:work1) { create(:work, title: ["King Kong"], member_of_collections: [collection1], user: user) }
 
@@ -366,7 +366,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
     end
   end
 
-  describe 'edit collection' do
+  describe 'edit collection', with_nested_reindexing: true do
     let(:collection) { create(:named_collection, user: user) }
     let!(:work1) { create(:work, title: ["King Louie"], member_of_collections: [collection], user: user) }
     let!(:work2) { create(:work, title: ["King Kong"], member_of_collections: [collection], user: user) }
@@ -408,12 +408,12 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
       end
     end
 
-    context "tabs" do
+    context "edit view tabs" do
       before do
         sign_in user
       end
 
-      xit 'always includes branding' do # TODO: Pending PR for branding
+      it 'always includes branding' do
         visit "/dashboard/collections/#{collection.id}/edit"
         expect(page).to have_content('Edit Collection')
         expect(page).to have_link('Branding', href: '#branding')
@@ -461,7 +461,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
       visit "/dashboard/collections/#{collection.id}/edit"
     end
 
-    it "removes one works out of two" do
+    it "removes one works out of two", with_nested_reindexing: true do
       within("#document_#{work1.id}") do
         first('button.dropdown-toggle').click
         click_button('Remove from Collection')

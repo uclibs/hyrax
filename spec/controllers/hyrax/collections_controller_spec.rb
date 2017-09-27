@@ -28,7 +28,7 @@ RSpec.describe Hyrax::CollectionsController do
         end
       end
 
-      it "returns the collection and its members" do
+      it "returns the collection and its members", :with_nested_reindexing do
         expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
         get :show, params: { id: collection }
         expect(response).to be_successful
@@ -37,7 +37,7 @@ RSpec.describe Hyrax::CollectionsController do
         expect(assigns[:member_docs].map(&:id)).to match_array [asset1, asset2, asset3].map(&:id)
       end
 
-      context "and searching" do
+      context "and searching", :with_nested_reindexing do
         it "returns some works" do
           # "/collections/4m90dv529?utf8=%E2%9C%93&cq=King+Louie&sort="
           get :show, params: { id: collection, cq: "Third" }

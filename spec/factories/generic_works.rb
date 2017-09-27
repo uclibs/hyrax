@@ -18,6 +18,12 @@ FactoryGirl.define do
       end
     end
 
+    after(:create) do |work, evaluator|
+      if work.member_of_collections.present?
+        work.save!
+      end
+    end
+
     title ["Test title"]
     visibility Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
 

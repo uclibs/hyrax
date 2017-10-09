@@ -1,4 +1,5 @@
-<div class="modal fade" id="add-collection-to-collection-modal" tabindex="-1" role="dialog" aria-labelledby="add-collection-to-collection-label">
+<div class="modal fade" id="add-collection-to-collection-modal-<%= id %>" tabindex="-1" role="dialog" aria-labelledby="add-collection-to-collection-label">
+<% collection = Collection.find id %>
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -9,16 +10,36 @@
         <div class="modal-body">
           <div class="form-group">
             <label><%= t("hyrax.dashboard.my.action.select_collection") %></label>
-            <select class="form-control">
-              <option><%= t("hyrax.dashboard.my.action.select") %></option>
-              <option>Test collection hardcoded #1</option>
-              <option>Test collection hardcoded #2</option>
-            </select>
+
+
+            <% form_tag( :action => 'new_within') do %>
+
+              <input type="hidden" name="parent_id" value="<%= collection.id %>">
+            
+              <select class="form-control">
+
+              <% colls = Hyrax::Collections::NestedCollectionQueryService.available_child_collections(parent: collection, scope: controller, limit_to_id: nil) %>
+
+              <% colls.each {|coll| %>
+                <option name="child_id" value="<%= coll.id %>"><%= coll.title.first %></option>
+
+              <% } %>
+              </select>
+              <% submit_tag ("Do Mapping") %>
+    
+            <% end %>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('helpers.action.cancel') %></button>
-          <button type="button" class="btn btn-primary"><%= t("hyrax.dashboard.my.action.add_to_collection") %></button>
+
+
+      <%= link_to t('hyrax.collection.actions.nest_collections.label'),
+                  hyrax.dashboard_new_nest_collection_within_path(child_id: collection.id),
+                  title: t('hyrax.collection.actions.nest_collections.desc'),
+                  class: 'btn btn-default' %>
+
+          <%#button type="button" class="btn btn-primary"><%= t("hyrax.dashboard.my.action.add_to_collection") %></button>
         </div>
       </form>
     </div>

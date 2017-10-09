@@ -4,6 +4,7 @@ module Hyrax
     class CollectionsController < Hyrax::My::CollectionsController
       include Blacklight::AccessControls::Catalog
       include Blacklight::Base
+
       include BreadcrumbsForCollections
       layout 'dashboard'
 
@@ -106,7 +107,17 @@ module Hyrax
         end
       end
 
+      def process_nesting 
+        byebug
+         @parent_id = params[:parent_id]
+         @child_id = params[:child_id]
+
+         after_create
+      end
+
+
       def create
+        byebug
         # Manual load and authorize necessary because Cancan will pass in all
         # form attributes. When `permissions_attributes` are present the
         # collection is saved without a value for `has_model.`

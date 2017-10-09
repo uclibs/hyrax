@@ -9,7 +9,9 @@ module Hyrax
       # @param scope [Object] Typically a controller object that responds to `repository`, `can?`, `blacklight_config`, `current_ability`
       # @param limit_to_id [nil, String] Limit the query to just check if the given id is in the response. Useful for validation.
       # @return [Array<SolrDocument>]
+      #this is where you get the child colls for the modal.
       def self.available_child_collections(parent:, scope:, limit_to_id: nil)
+        byebug
         return [] unless parent.try(:nestable?)
         return [] unless scope.can?(:edit, parent)
         query_solr(collection: parent, access: :read, scope: scope, limit_to_id: limit_to_id)
@@ -36,6 +38,8 @@ module Hyrax
       # @param scope [Object] Typically a controller object that responds to `repository`, `can?`, `blacklight_config`, `current_ability`
       # @param limit_to_id [nil, String] Limit the query to just check if the given id is in the response. Useful for validation.
       def self.query_solr(collection:, access:, scope:, limit_to_id:)
+        #Jose checkout scope
+        byebug
         query_builder = Hyrax::Dashboard::NestedCollectionsSearchBuilder.new(access: access, collection: collection, scope: scope)
         # No sense returning everything, just limit to a single entry
         query_builder.where(id: limit_to_id) if limit_to_id

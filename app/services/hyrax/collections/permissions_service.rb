@@ -4,7 +4,7 @@ module Hyrax
       # @api public
       #
       # IDs of collections/or admin_sets a user can access based on participant roles.
-      #
+      # 
       # @param access [Array<String>] one or more types of access (e.g. Hyrax::PermissionTemplateAccess::MANAGE, Hyrax::PermissionTemplateAccess::DEPOSIT, Hyrax::PermissionTemplateAccess::VIEW)
       # @param user [User] user (required if ability is nil)
       # @param ability [Ability] the ability coming from cancan ability check (default: nil) (required if user is nil)

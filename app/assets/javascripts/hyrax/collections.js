@@ -14,9 +14,10 @@ Blacklight.onLoad(function () {
   $('#documents').find('.add-collection-to-collection').on('click', function(e) {
       e.preventDefault();
       var isNestable = $(this).data('nestable') === true;
+      var collectionId = $(this).parents('tr')[0].id.split('_')[1];
 
       if (isNestable) {
-        $('#add-collection-to-collection-modal').modal('show');
+        $('#add-collection-to-collection-modal-' + collectionId).modal('show');
       } else {
         $('#add-collection-to-collection-deny-modal').modal('show');
       }

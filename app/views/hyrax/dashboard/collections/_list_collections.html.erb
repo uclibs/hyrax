@@ -53,7 +53,9 @@
     <% if collection_presenter.solr_document.admin_set? %>
       <%= render '/hyrax/my/admin_set_action_menu', admin_set_presenter: collection_presenter %>
     <% else %>
+<% byebug %>
       <%= render '/hyrax/my/collection_action_menu', collection_presenter: collection_presenter %>
+      <%= render 'modal_add_collection_to_collection', id: id %>
     <% end %>
    </td>
 </tr>
